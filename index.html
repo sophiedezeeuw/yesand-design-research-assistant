@@ -1,0 +1,1326 @@
+<!-- GENERATED_BY: YES_AND_v1.1 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yes& - Design Research Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* ===== CUSTOM STYLES ===== */
+        
+        /* Grid pattern for playground */
+        .dotted-grid {
+            background-image: radial-gradient(circle, #d1d5db 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        /* Smooth transitions */
+        * {
+            transition: all 0.2s ease;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #1e40af;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1e3a8a;
+        }
+        
+        /* Card hover effects */
+        .insight-card {
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(251, 146, 60, 0.3);
+            border-color: #fb923ccc;
+        }
+        
+        .insight-card:active {
+            cursor: grabbing;
+        }
+        
+        /* Dragging state */
+        .dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        
+        /* Score color function helper classes */
+        .score-bg-red { background-color: #ef4444; color: white; }
+        .score-bg-orange { background-color: #f97316; color: white; }
+        .score-bg-yellow { background-color: #facc15; color: #1f2937; }
+        .score-bg-lime { background-color: #84cc16; color: white; }
+        .score-bg-green { background-color: #22c55e; color: white; }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1e40af;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Pulse animation for recalculating */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulsing {
+            animation: pulse 2s ease-in-out;
+        }
+        
+        /* Dropdown styling */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            z-index: 100;
+            min-width: 200px;
+        }
+        
+        .dropdown-content.show {
+            display: block;
+        }
+        
+        /* Tab styling */
+        .tab {
+            cursor: pointer;
+            padding: 8px 16px;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom-color: #fb923ccc;
+            font-weight: 600;
+        }
+        
+        /* Expanded card in playground */
+        .expanded-card {
+            position: absolute;
+            background: white;
+            border: 2px solid #fb923ccc;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-width: 400px;
+            cursor: move;
+        }
+        
+        /* Merge warning badge */
+        .merge-badge {
+            background: #fb923ccc;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+        
+        /* Playground zoom container */
+        .playground-zoomable {
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+            width: 4000px;
+            height: 4000px;
+            position: absolute;
+            cursor: grab;
+        }
+        
+        .playground-zoomable.panning {
+            cursor: grabbing;
+        }
+        
+        .playground-wrapper {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Zoom button styling */
+        .zoom-btn {
+            background: #fb923ccc;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .zoom-btn:hover {
+            background: #fb923c;
+            transform: scale(1.05);
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .zoom-reset {
+            width: 60px;
+            font-size: 12px;
+        }
+        
+        /* Minimum width warning */
+        .min-width-warning {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1e40af;
+            color: white;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        @media (max-width: 1279px) {
+            .min-width-warning {
+                display: flex;
+            }
+            .main-content {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Minimum width warning -->
+    <div class="min-width-warning">
+        <h1 class="text-4xl font-bold">Yes&</h1>
+        <p class="text-xl">This tool is optimized for desktop screens (1280px+)</p>
+        <p>Please resize your browser window or use a larger display.</p>
+    </div>
+    
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Header - UPDATED: Blue background with white text -->
+        <header class="bg-blue-800 border-b-2 border-blue-900 py-4">
+            <h1 class="text-4xl font-bold text-center text-white">Yes&</h1>
+        </header>
+        
+        <!-- Main layout: 3 columns -->
+        <div class="flex h-screen">
+            
+            <!-- LEFT PANEL: Project Context (20%) -->
+            <div class="w-1/5 bg-white border-r-2 border-gray-200 p-6 overflow-y-auto">
+                <h2 class="text-xl font-bold text-blue-800 mb-4">Project Context</h2>
+                
+                <!-- Design Goal -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-blue-800 mb-2">Design Goal</label>
+                    <textarea 
+                        id="designGoalInput" 
+                        class="w-full h-32 p-3 border-2 border-gray-300 rounded-lg focus:border-blue-800 focus:outline-none resize-none"
+                        placeholder="Enter your design goal...">Design a wayfinding system for Delft train station's kringerloop pedestrian tunnel that reduces cognitive load and anxiety for first-time visitors, elderly users, and people with visual impairments during peak hours.</textarea>
+                    <p class="text-xs text-gray-500 mt-1"><span id="charCount">212</span> characters</p>
+                </div>
+                
+                <!-- Course Manual Upload -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-blue-800 mb-2">Course Manual</label>
+                    <div class="border-2 border-dashed border-blue-800 rounded-lg p-4 bg-blue-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-sm text-blue-800">IDE Master Thesis Manual.pdf</span>
+                            </div>
+                            <button class="text-red-500 hover:text-red-700">×</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Research Papers Upload -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-blue-800 mb-2">Research Papers</label>
+                    <div class="border-2 border-dashed border-blue-800 rounded-lg p-3 bg-blue-50 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-blue-800">Wayfinding in Complex Environments - Chen et al. (2023).pdf</span>
+                            </div>
+                            <button class="text-red-500 hover:text-red-700">×</button>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-blue-800">Acoustic Legibility in Transit Hubs - Rodriguez (2022).pdf</span>
+                            </div>
+                            <button class="text-red-500 hover:text-red-700">×</button>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-blue-800">Age-Related Spatial Cognition - Thompson (2021).pdf</span>
+                            </div>
+                            <button class="text-red-500 hover:text-red-700">×</button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">3 papers • 14 insights generated</p>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button class="w-full bg-blue-800 text-white py-2 rounded-lg font-semibold opacity-50 cursor-not-allowed">
+                        Generate Context Brief ✓
+                    </button>
+                    <button class="w-full bg-blue-800 text-white py-2 rounded-lg font-semibold opacity-50 cursor-not-allowed">
+                        Extract Insights ✓
+                    </button>
+                    <p class="text-xs text-gray-500 text-center">Last updated: 2 hours ago</p>
+                </div>
+            </div>
+            
+            <!-- MIDDLE PANEL: Library + Playground (60%) -->
+            <div class="w-3/5 flex flex-col">
+                
+                <!-- Insight Card Library (30% height) -->
+                <div class="h-[30%] bg-white border-b-2 border-gray-200 p-4">
+                    <!-- Controls bar -->
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-lg font-bold text-blue-800">Insight Card Library</h3>
+                            <span id="libraryCount" class="bg-blue-800 text-white px-3 py-1 rounded-full text-sm font-semibold">14 insights</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <!-- Sort dropdown -->
+                            <div class="relative">
+                                <button id="sortBtn" class="bg-gray-100 border border-gray-300 px-3 py-1 rounded-lg text-sm font-medium hover:bg-gray-200 flex items-center gap-2">
+                                    Sort by: Total Score ↓
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div id="sortDropdown" class="dropdown-content mt-2 p-2">
+                                    <div class="sort-option px-3 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm" data-sort="total">Total Score</div>
+                                    <div class="sort-option px-3 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm" data-sort="relevance">Relevance</div>
+                                    <div class="sort-option px-3 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm" data-sort="novelty">Novelty</div>
+                                    <div class="sort-option px-3 py-2 hover:bg-gray-100 rounded cursor-pointer text-sm" data-sort="evidence">Evidence Strength</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Filter dropdown -->
+                            <div class="relative">
+                                <button id="filterBtn" class="bg-gray-100 border border-gray-300 px-3 py-1 rounded-lg text-sm font-medium hover:bg-gray-200 flex items-center gap-2">
+                                    Filter by Tags
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                                    </svg>
+                                </button>
+                                <div id="filterDropdown" class="dropdown-content mt-2 p-3">
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Wayfinding" checked>
+                                        <span class="text-sm">#Wayfinding</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Acoustics" checked>
+                                        <span class="text-sm">#Acoustics</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Legibility">
+                                        <span class="text-sm">#Legibility</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Accessibility">
+                                        <span class="text-sm">#Accessibility</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Crowding">
+                                        <span class="text-sm">#Crowding</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Signage">
+                                        <span class="text-sm">#Signage</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Anxiety">
+                                        <span class="text-sm">#Anxiety</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 py-1 cursor-pointer hover:bg-gray-50 px-2 rounded">
+                                        <input type="checkbox" class="tag-filter" value="Spatial-Cognition">
+                                        <span class="text-sm">#Spatial-Cognition</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card container - horizontal scroll -->
+                    <div id="cardLibrary" class="flex gap-4 overflow-x-auto pb-2" style="height: calc(100% - 50px);">
+                        <!-- Cards will be dynamically inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Insight Card Playground (70% height) -->
+                <div class="h-[70%] bg-white relative border-2 border-orange-500 border-opacity-80 overflow-hidden">
+                    <!-- Header with zoom controls -->
+                    <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
+                        <div class="flex items-center gap-3 pointer-events-auto">
+                            <h3 class="text-lg font-bold text-gray-800">Insight Card Playground</h3>
+                            <span id="playgroundCount" class="bg-orange-500 bg-opacity-80 text-white px-3 py-1 rounded-full text-sm font-semibold">4 cards</span>
+                        </div>
+                        <!-- NEW: Zoom controls -->
+                        <div class="flex items-center gap-2 pointer-events-auto">
+                            <button id="zoomOut" class="zoom-btn" title="Zoom out">−</button>
+                            <button id="zoomReset" class="zoom-btn zoom-reset" title="Reset zoom">100%</button>
+                            <button id="zoomIn" class="zoom-btn" title="Zoom in">+</button>
+                        </div>
+                    </div>
+                    <!-- Playground wrapper for panning -->
+                    <div id="playgroundWrapper" class="playground-wrapper">
+                        <!-- Zoomable & pannable container -->
+                        <div id="playgroundZoomable" class="playground-zoomable dotted-grid">
+                            <div id="playground" class="w-full h-full relative">
+                                <!-- Expanded cards will be placed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RIGHT PANEL: Context Brief (20%) -->
+            <div class="w-1/5 bg-white border-l-2 border-gray-200 flex flex-col">
+                <!-- Header -->
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-xl font-bold text-blue-800">Context Brief</h2>
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Generated • v3.0</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">Updated 2 hours ago</p>
+                    
+                    <!-- NEW: Action buttons -->
+                    <div class="flex gap-2">
+                        <button id="copyBriefBtn" class="flex-1 bg-blue-800 text-white text-xs py-2 px-3 rounded-lg hover:bg-blue-900 transition">
+                            📋 Copy
+                        </button>
+                        <button id="editBriefBtn" class="flex-1 bg-gray-300 text-gray-700 text-xs py-2 px-3 rounded-lg hover:bg-gray-400 transition">
+                            ✏️ Edit
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-200">
+                    <div class="tab active text-sm text-blue-800" data-tab="overview">Overview</div>
+                    <div class="tab text-sm text-gray-600" data-tab="criteria">Success Criteria</div>
+                    <div class="tab text-sm text-gray-600" data-tab="evidence">Evidence Plan</div>
+                    <div class="tab text-sm text-gray-600" data-tab="source">Source Map</div>
+                </div>
+                
+                <!-- Tab content -->
+                <div class="flex-1 overflow-y-auto p-4">
+                    <div id="tabContent">
+                        <!-- Overview tab (active by default) -->
+                        <div class="tab-pane active" id="overview-pane">
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Metadata</h4>
+                                    <div class="text-xs space-y-1 text-gray-700">
+                                        <p><strong>Brief ID:</strong> CB-2024-001</p>
+                                        <p><strong>Version:</strong> 3.0</p>
+                                        <p><strong>Date:</strong> 29 October 2024</p>
+                                        <p><strong>Prepared for:</strong> IDE Master Thesis</p>
+                                        <p><strong>Author:</strong> AI</p>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Project Summary</h4>
+                                    <p class="text-xs text-gray-700 leading-relaxed">
+                                        This project aims to design an inclusive wayfinding system for the kringerloop pedestrian tunnel at Delft train station. The system will reduce cognitive load and navigation anxiety for first-time visitors, elderly users (65+), and people with visual impairments during peak travel hours.
+                                        <span class="text-orange-600 italic"> Note: "kringerloop" spelling to be confirmed.</span>
+                                    </p>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">User & Stakeholder Context</h4>
+                                    <div class="text-xs text-gray-700 space-y-2">
+                                        <p><strong>Primary users:</strong> First-time visitors to the station, elderly passengers (65+), and people with visual impairments.</p>
+                                        <p><strong>Secondary stakeholders:</strong> NS (Nederlandse Spoorwegen, station operator), Municipality of Delft, accessibility advocacy groups.</p>
+                                        <p><strong>Contextual factors:</strong> The tunnel experiences significant crowding during peak hours (07:00-09:00, 17:00-19:00), lacks natural landmarks or sightlines, and serves as a critical connection between platforms.</p>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Design Intent & Principles</h4>
+                                    <div class="text-xs text-gray-700 space-y-2">
+                                        <p><strong>Core intent:</strong> Reduce cognitive load and navigation anxiety through clear, accessible, multi-sensory wayfinding cues.</p>
+                                        <p><strong>Principles:</strong></p>
+                                        <ul class="list-disc list-inside ml-2 space-y-1">
+                                            <li><strong>Accessibility:</strong> Ensure usability for people with diverse sensory abilities</li>
+                                            <li><strong>Multi-sensory coherence:</strong> Provide redundant information across visual, auditory, and tactile channels</li>
+                                            <li><strong>Legibility:</strong> Maintain clear sightlines and progress confirmation</li>
+                                            <li><strong>Safety:</strong> Support confident navigation under time pressure and crowding</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Scope & Boundaries</h4>
+                                    <div class="text-xs text-gray-700 space-y-2">
+                                        <p><strong>In-scope:</strong> Acoustic interventions (directional beacons), tactile paving redesign, signage system overhaul, strategic lighting improvements.</p>
+                                        <p><strong>Out-of-scope:</strong> Major structural modifications, real-time digital displays (budget constraint), tunnel widening or ceiling height changes.</p>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Success Criteria</h4>
+                                    <div class="text-xs text-gray-700 space-y-1">
+                                        <p><strong>SC01:</strong> Reduce navigation errors by ≥30% compared to baseline<sup>[1]</sup></p>
+                                        <p><strong>SC02:</strong> Achieve average confidence ratings >6/7 among first-time users<sup>[1]</sup></p>
+                                        <p><strong>SC03:</strong> Meet EN 301 549 accessibility compliance for digital/physical interfaces<sup>[2]</sup></p>
+                                        <p><strong>SC04:</strong> Maintain anxiety scores below 4/7 during peak hours<sup>[1]</sup></p>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Assumptions, Constraints & Risks</h4>
+                                    <div class="text-xs text-gray-700 space-y-2">
+                                        <p><strong>Assumptions:</strong> Users have functional hearing OR vision; station layout will not change during project timeline.</p>
+                                        <p><strong>Constraints:</strong> 12-week project timeline, €50,000 budget ceiling, no major construction work permitted during peak hours.</p>
+                                        <p><strong>Risks:</strong> Acoustic interventions may conflict with existing ambient noise; tactile paving may require lengthy approval processes; user testing recruitment challenges for target demographics.</p>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-gray-200">
+                                
+                                <div>
+                                    <h4 class="font-bold text-blue-800 text-sm mb-2">Expected Deliverables</h4>
+                                    <div class="text-xs text-gray-700 space-y-1">
+                                        <p>• Final design proposal document (20-30 pages)<sup>[2]</sup></p>
+                                        <p>• Prototype demonstration video (3-5 minutes)<sup>[2]</sup></p>
+                                        <p>• User evaluation report with quantitative metrics<sup>[2]</sup></p>
+                                        <p>• Technical specifications for implementation<sup>[2]</sup></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Success Criteria tab -->
+                        <div class="tab-pane hidden" id="criteria-pane">
+                            <p class="text-xs text-gray-700">Detailed success criteria table and operational definitions would appear here.</p>
+                        </div>
+                        
+                        <!-- Evidence Plan tab -->
+                        <div class="tab-pane hidden" id="evidence-pane">
+                            <p class="text-xs text-gray-700">Evidence gathering plan and research methodology would appear here.</p>
+                        </div>
+                        
+                        <!-- Source Map tab -->
+                        <div class="tab-pane hidden" id="source-pane">
+                            <div class="text-xs text-gray-700 space-y-2">
+                                <p><strong>[1]</strong> IDE Master Thesis Manual, Section 4.2: Assessment Criteria</p>
+                                <p><strong>[2]</strong> IDE Master Thesis Manual, Section 5.1: Deliverable Requirements</p>
+                                <p><strong>[3]</strong> Course Rubric, Page 3: Evaluation Dimensions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ===== MOCK DATA: 14 Insight Cards =====
+        const insightCards = [
+            {
+                id: 'C01',
+                title: 'Acoustic landmarks reduce wayfinding errors in visually similar corridors',
+                totalScore: 87,
+                scores: { relevance: 4.5, evidence: 4.8, novelty: 4.2, actionability: 4.3, clarity: 4.5 },
+                tags: ['Wayfinding', 'Acoustics', 'Legibility'],
+                insight: "Chen et al. (2023) found that adding distinct acoustic signatures to corridor intersections reduced navigation errors by 34% among first-time visitors in underground transit environments. The study tested ambient soundscapes (water features, subtle music variations) versus traditional visual-only signage across 240 participants aged 18-75. Elderly participants (65+) showed the most significant improvement (41% error reduction), particularly when acoustic cues were combined with high-contrast visual markers. The authors note that effectiveness depends on maintaining distinct frequency profiles between zones to prevent acoustic confusion.",
+                quotes: [
+                    { text: "Participants in the acoustic landmark condition made 34% fewer wrong turns than the visual-only control group (p < 0.001)", page: 14 },
+                    { text: "The combination of low-frequency ambient sound (120-250 Hz) with high-contrast signage produced the strongest wayfinding performance across all age groups", page: 18 }
+                ],
+                keyPhrases: "Acoustic landmarks — distinct sound signatures placed at decision points to aid spatial orientation"
+            },
+            {
+                id: 'C02',
+                title: 'Legibility drives calm route choice in crowded hubs',
+                totalScore: 79,
+                scores: { relevance: 4.2, evidence: 4.0, novelty: 3.8, actionability: 4.1, clarity: 4.2 },
+                tags: ['Legibility', 'Crowding', 'Anxiety'],
+                insight: "Rodriguez (2022) demonstrated that perceived route legibility significantly predicts route choice under crowding stress in transit stations. In field observations across 5 European rail hubs, 68% of passengers opted for longer but visually clearer routes when crowd density exceeded 1.5 persons/m². The effect was strongest during peak hours (07:00-09:00) and among visitors unfamiliar with the station layout. The study suggests that cognitive load from both navigation and crowd management creates a preference for routes with continuous visual confirmation of progress toward the destination.",
+                quotes: [
+                    { text: "Passengers consistently chose routes with visible sightlines to their destination, even when these routes were 15-20% longer in distance", page: 23 },
+                    { text: "Self-reported anxiety scores correlated negatively with route legibility (r = -0.64, p < 0.001)", page: 27 }
+                ],
+                keyPhrases: "Route legibility — the degree to which a path's destination and progress are visually apparent to users"
+            },
+            {
+                id: 'C03',
+                title: 'Age-related decline in spatial updating affects tunnel navigation',
+                totalScore: 72,
+                scores: { relevance: 4.0, evidence: 3.8, novelty: 3.5, actionability: 3.7, clarity: 4.0 },
+                tags: ['Spatial-Cognition', 'Accessibility', 'Wayfinding'],
+                insight: "Thompson (2021) found that adults over 65 show reduced accuracy in spatial updating tasks when navigating enclosed corridors without external landmarks. Laboratory tests using virtual tunnel environments revealed that older adults' heading estimates drifted by an average of 23° after three consecutive turns, compared to 8° for younger adults. The deficit was partially compensated by providing intermediate direction confirmation at each turn. This suggests that tunnel environments, which limit access to external reference frames, disproportionately challenge older navigators who rely more heavily on landmark-based strategies.",
+                quotes: [
+                    { text: "Older participants' heading estimates after three turns showed significantly greater error (M = 23.4°, SD = 12.1) than younger participants (M = 8.2°, SD = 4.3)", page: 41 }
+                ],
+                keyPhrases: "Spatial updating — the cognitive process of tracking one's position and orientation during movement"
+            },
+            {
+                id: 'C04',
+                title: 'Multi-sensory redundancy improves wayfinding confidence',
+                totalScore: 81,
+                scores: { relevance: 4.3, evidence: 4.2, novelty: 3.9, actionability: 4.0, clarity: 4.3 },
+                tags: ['Wayfinding', 'Accessibility', 'Signage'],
+                insight: "Chen et al. (2023) demonstrated that combining visual, auditory, and tactile cues at decision points increased self-reported navigation confidence by 42% compared to visual-only signage. The study tested 180 participants in a mock transit corridor, finding that tactile ground surface indicators paired with directional audio beacons were particularly effective for visually impaired users. Interestingly, fully-sighted users also reported preferring multi-sensory environments, citing reduced cognitive effort and increased certainty. The authors caution that excessive redundancy (more than 3 modalities) can create sensory clutter.",
+                quotes: [
+                    { text: "Navigation confidence scores increased from 3.2/7 (visual-only) to 5.8/7 (tri-modal condition), t(178) = 11.4, p < 0.001", page: 33 },
+                    { text: "Visually impaired participants rated tactile + auditory combinations highest for usability and independence", page: 36 }
+                ],
+                keyPhrases: "Multi-sensory redundancy — presenting navigation information through multiple sensory channels simultaneously"
+            },
+            {
+                id: 'C05',
+                title: 'Signage density paradox: more signs increase confusion',
+                totalScore: 68,
+                scores: { relevance: 3.7, evidence: 3.5, novelty: 4.1, actionability: 3.4, clarity: 3.6 },
+                tags: ['Signage', 'Wayfinding', 'Legibility'],
+                insight: "Rodriguez (2022) identified a non-linear relationship between signage density and wayfinding performance. Corridors with 4-6 directional signs per 100m showed optimal navigation times, but increasing density beyond 8 signs/100m resulted in 19% longer task completion times. Eye-tracking data revealed that high-density signage environments caused 'information scatter' where users rapidly scanned multiple signs without deeply processing any single one. The study suggests that strategic placement at decision points outweighs sheer quantity.",
+                quotes: [
+                    { text: "Navigation time increased when signage density exceeded 8 signs per 100m corridor length", page: 52 }
+                ],
+                keyPhrases: "Information scatter — rapid, shallow visual scanning behavior in high-information environments"
+            },
+            {
+                id: 'C06',
+                title: 'Anxiety amplifies wayfinding errors under time pressure',
+                totalScore: 75,
+                scores: { relevance: 4.1, evidence: 3.9, novelty: 3.6, actionability: 3.8, clarity: 4.0 },
+                tags: ['Anxiety', 'Wayfinding', 'Crowding'],
+                insight: "Thompson (2021) measured how induced anxiety affects navigation performance in time-pressured scenarios. Participants given a 'tight connection' framing (5 minutes to reach platform) made 53% more directional errors than those given a relaxed timeframe. State anxiety (measured via STAI-6) mediated this relationship, with high-anxiety individuals showing particular vulnerability. The effect was strongest in ambiguous choice-points where signage was unclear. This highlights the importance of redundant, obvious wayfinding aids at critical junctions.",
+                quotes: [
+                    { text: "Error rate under time pressure: low-anxiety group 12%, high-anxiety group 31% (p = 0.003)", page: 67 }
+                ],
+                keyPhrases: "STAI-6 — Six-item State-Trait Anxiety Inventory, a brief measure of current anxiety levels"
+            },
+            {
+                id: 'C07',
+                title: 'Tactile paving effectiveness depends on contrast and continuity',
+                totalScore: 70,
+                scores: { relevance: 3.8, evidence: 3.7, novelty: 3.4, actionability: 3.9, clarity: 3.8 },
+                tags: ['Accessibility', 'Wayfinding', 'Signage'],
+                insight: "Chen et al. (2023) evaluated tactile ground surface indicators in real-world transit stations, finding that effectiveness strongly depends on visual contrast (for low-vision users) and uninterrupted continuity. Gaps longer than 2 meters in tactile paths caused 64% of blind participants to lose track of the guidance system. High visual contrast (luminance difference >70%) allowed partially-sighted users to follow tactile paths more confidently. The study recommends combining bright yellow tactile domes with consistent textures.",
+                quotes: [
+                    { text: "Continuity breaks exceeding 2m led to path-finding failures in 64% of blind participant trials", page: 89 }
+                ],
+                keyPhrases: "Tactile ground surface indicators — textured paving that provides navigational cues through touch"
+            },
+            {
+                id: 'C08',
+                title: 'Ceiling height influences perceived crowding and stress',
+                totalScore: 64,
+                scores: { relevance: 3.4, evidence: 3.3, novelty: 3.9, actionability: 3.2, clarity: 3.5 },
+                tags: ['Crowding', 'Anxiety', 'Spatial-Cognition'],
+                insight: "Rodriguez (2022) found that corridor ceiling height moderates the relationship between crowd density and subjective stress. Tunnels with low ceilings (2.4m) produced higher stress ratings at equivalent densities compared to higher ceilings (3.6m+). The effect appears mediated by perceived personal space intrusion. While this finding has limited direct actionability for existing infrastructure, it suggests that visual strategies to enhance perceived vertical space (lighting, ceiling patterns) may reduce crowding stress.",
+                quotes: [
+                    { text: "Stress ratings at 1.5 persons/m²: low ceiling M=5.7, high ceiling M=4.1 (7-point scale)", page: 103 }
+                ],
+                keyPhrases: null
+            },
+            {
+                id: 'C09',
+                title: 'Visual complexity at decision points slows navigation',
+                totalScore: 76,
+                scores: { relevance: 4.0, evidence: 3.9, novelty: 3.7, actionability: 3.9, clarity: 4.0 },
+                tags: ['Legibility', 'Wayfinding', 'Crowding'],
+                insight: "Thompson (2021) tested how visual clutter at corridor intersections affects decision time and accuracy. Intersections with high visual complexity (multiple competing signs, advertisements, architectural features) increased decision time by 2.3 seconds on average and raised error rates by 18%. The study used objective measures of visual complexity (edge density, color variance) and found strong correlations with both subjective confusion ratings and behavioral outcomes. Simplified, high-contrast choice-point designs significantly improved performance.",
+                quotes: [
+                    { text: "Each unit increase in edge density (per 100 pixels) added 0.4 seconds to decision time (β = 0.41, p < 0.01)", page: 115 }
+                ],
+                keyPhrases: "Edge density — a computational measure of visual complexity based on the number of detected edges in an image",
+                mergeNote: "Consider merging with C02 (Legibility drives calm route choice) — both address visual clarity's impact on navigation under stress"
+            },
+            {
+                id: 'C10',
+                title: 'Landmark recognition memory varies with cognitive load',
+                totalScore: 66,
+                scores: { relevance: 3.5, evidence: 3.4, novelty: 3.3, actionability: 3.4, clarity: 3.7 },
+                tags: ['Spatial-Cognition', 'Wayfinding'],
+                insight: "Chen et al. (2023) investigated how concurrent cognitive tasks affect landmark memory during navigation. Participants navigating while performing a verbal working memory task showed 38% reduced landmark recognition accuracy compared to navigation-only conditions. This dual-task interference was strongest for subtle landmarks and least affected for highly salient, distinctive features. The findings suggest that in stressful, cognitively demanding situations (e.g., rushing to catch a train), wayfinding systems must rely on highly distinctive, memorable landmarks.",
+                quotes: [
+                    { text: "Landmark recognition under dual-task: 61% accuracy vs. 98% in navigation-only condition", page: 127 }
+                ],
+                keyPhrases: null
+            },
+            {
+                id: 'C11',
+                title: 'Directional audio beacons reduce navigation time by 22%',
+                totalScore: 83,
+                scores: { relevance: 4.4, evidence: 4.3, novelty: 4.0, actionability: 4.2, clarity: 4.4 },
+                tags: ['Acoustics', 'Wayfinding', 'Accessibility'],
+                insight: "Rodriguez (2022) tested low-frequency directional audio beacons (< 500 Hz) at tunnel exits, finding they reduced average navigation time by 22% and were particularly effective for visually impaired users. The beacons emitted intermittent tones (2 seconds on, 4 seconds off) that were audible from up to 40 meters but did not contribute to noise pollution. Importantly, 89% of participants reported the beacons as helpful or neutral, with no complaints of annoyance. The technology appears scalable and cost-effective for retrofit applications.",
+                quotes: [
+                    { text: "Mean navigation time: control 94 sec, beacon condition 73 sec, t(118) = 5.3, p < 0.001", page: 141 },
+                    { text: "Post-trial surveys: 89% rated beacons as helpful (67%) or neutral (22%)", page: 144 }
+                ],
+                keyPhrases: "Directional audio beacons — low-frequency sound emitters that guide users toward destinations through auditory cues"
+            },
+            {
+                id: 'C12',
+                title: 'Color-coded zones improve spatial mental models',
+                totalScore: 71,
+                scores: { relevance: 3.8, evidence: 3.6, novelty: 3.5, actionability: 3.7, clarity: 3.9 },
+                tags: ['Wayfinding', 'Legibility', 'Signage'],
+                insight: "Thompson (2021) examined the effectiveness of color-coded wayfinding systems in underground transit environments. Assigning distinct colors to different station zones (e.g., 'blue zone' for north exits, 'green zone' for south) improved users' ability to build accurate spatial mental models, as measured by sketch map accuracy (+31%) and verbal direction-giving performance (+27%). The system was most effective when colors were consistently applied across multiple elements (floors, walls, signage) rather than signage alone.",
+                quotes: [
+                    { text: "Sketch map accuracy: color-coded condition 68%, control 52% (p = 0.02)", page: 156 }
+                ],
+                keyPhrases: null
+            },
+            {
+                id: 'C13',
+                title: 'First-time users prefer conservative routing strategies',
+                totalScore: 62,
+                scores: { relevance: 3.3, evidence: 3.1, novelty: 3.2, actionability: 3.1, clarity: 3.4 },
+                tags: ['Wayfinding', 'Spatial-Cognition'],
+                insight: "Chen et al. (2023) documented route-choice strategies among first-time visitors to complex transit hubs. Novice users exhibited strong preferences for 'following the crowd' (social navigation) and 'stick to main corridors' strategies, even when these routes were suboptimal. Only 23% attempted shortcuts through secondary corridors despite clear signage. This suggests that effective wayfinding for newcomers requires not just information provision but also confidence-building through visible human traffic, wider corridors, and reassurance messaging.",
+                quotes: [
+                    { text: "First-time visitors: 77% chose crowded main routes, 23% used quieter shortcuts (despite equal signage clarity)", page: 168 }
+                ],
+                keyPhrases: "Social navigation — using the movement and positioning of other people as wayfinding cues"
+            },
+            {
+                id: 'C14',
+                title: 'Real-time crowding indicators reduce peak-hour stress',
+                totalScore: 78,
+                scores: { relevance: 4.1, evidence: 4.0, novelty: 3.8, actionability: 4.0, clarity: 4.1 },
+                tags: ['Crowding', 'Anxiety', 'Signage'],
+                insight: "Rodriguez (2022) piloted digital signage displaying real-time crowd density for alternative routes in a major European station. Passengers shown this information distributed more evenly across available corridors (32% shift from most-crowded to medium-crowded routes) and reported lower stress levels (mean reduction 1.1 points on 7-point scale). The system required minimal infrastructure (camera-based crowd detection + simple LED displays) and demonstrated clear benefits during peak periods. Adoption was highest among regular commuters familiar with the station layout.",
+                quotes: [
+                    { text: "Route distribution shift: 32% moved from highest-density to medium-density corridors when shown real-time data", page: 179 },
+                    { text: "Stress scores: informed condition M=3.2, uninformed M=4.3, t(156)=3.8, p<0.001", page: 182 }
+                ],
+                keyPhrases: null
+            }
+        ];
+        
+        // ===== ZOOM FUNCTIONALITY =====
+        let currentZoom = 100;
+        const zoomStep = 15;
+        const minZoom = 40;
+        const maxZoom = 200;
+        
+        // Panning state
+        let panX = -1500; // Start centered in the 4000x4000 canvas
+        let panY = -1500;
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        
+        function updateZoom(newZoom) {
+            currentZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+            updatePlaygroundTransform();
+            document.getElementById('zoomReset').textContent = `${currentZoom}%`;
+            console.log(`Zoom updated to ${currentZoom}%`);
+        }
+        
+        function updatePlaygroundTransform() {
+            const zoomable = document.getElementById('playgroundZoomable');
+            const scale = currentZoom / 100;
+            zoomable.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        }
+        
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            updateZoom(currentZoom + zoomStep);
+        });
+        
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            updateZoom(currentZoom - zoomStep);
+        });
+        
+        document.getElementById('zoomReset').addEventListener('click', () => {
+            updateZoom(100);
+        });
+        
+        // ===== PLAYGROUND PANNING =====
+        
+        const playgroundZoomable = document.getElementById('playgroundZoomable');
+        
+        playgroundZoomable.addEventListener('mousedown', (e) => {
+            // Only pan if clicking on background (not on a card)
+            if (e.target === playgroundZoomable || e.target.id === 'playground') {
+                isPanning = true;
+                panStartX = e.clientX - panX;
+                panStartY = e.clientY - panY;
+                playgroundZoomable.classList.add('panning');
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (isPanning) {
+                panX = e.clientX - panStartX;
+                panY = e.clientY - panStartY;
+                updatePlaygroundTransform();
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isPanning) {
+                isPanning = false;
+                playgroundZoomable.classList.remove('panning');
+            }
+        });
+        
+        // ===== CONTEXT BRIEF COPY/EDIT =====
+        
+        function copyContextBrief() {
+            // Get all text content from the Context Brief
+            const briefContent = document.getElementById('tabContent').innerText;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(briefContent).then(() => {
+                showToast('✓ Context Brief copied to clipboard!');
+                console.log('Context Brief copied to clipboard');
+            }).catch(err => {
+                showToast('Failed to copy to clipboard');
+                console.error('Copy failed:', err);
+            });
+        }
+        
+        document.getElementById('copyBriefBtn').addEventListener('click', copyContextBrief);
+        
+        document.getElementById('editBriefBtn').addEventListener('click', () => {
+            showToast('Feature in development');
+            console.log('Edit button clicked - prototype feature');
+        });
+        
+        // ===== HELPER FUNCTIONS =====
+        
+        // Calculate score background color
+        function getScoreColor(score) {
+            if (score >= 85) return 'score-bg-green';
+            if (score >= 75) return 'score-bg-lime';
+            if (score >= 65) return 'score-bg-yellow';
+            if (score >= 55) return 'score-bg-orange';
+            return 'score-bg-red';
+        }
+        
+        // Calculate individual score color (0-5 scale)
+        function getIndividualScoreColor(score) {
+            if (score >= 4.5) return '#22c55e';
+            if (score >= 4.0) return '#84cc16';
+            if (score >= 3.5) return '#facc15';
+            if (score >= 3.0) return '#f97316';
+            return '#ef4444';
+        }
+        
+        // Create compact library card
+        function createLibraryCard(card) {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'insight-card bg-white rounded-lg shadow-md p-4 min-w-[280px] max-w-[280px] flex-shrink-0 border-2 border-transparent';
+            cardEl.setAttribute('data-card-id', card.id);
+            cardEl.setAttribute('draggable', 'true');
+            cardEl.setAttribute('data-tags', card.tags.join(','));
+            
+            cardEl.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs text-gray-500 font-mono">${card.id}</span>
+                </div>
+                <h4 class="font-bold text-sm mb-3 text-gray-800 line-clamp-2">${card.title}</h4>
+                <div class="mb-3">
+                    <div class="${getScoreColor(card.totalScore)} text-center py-2 rounded-lg font-bold text-lg">
+                        ${card.totalScore}/100
+                    </div>
+                </div>
+                <div class="grid grid-cols-5 gap-1 mb-3">
+                    <div class="text-center">
+                        <div class="w-full h-2 rounded" style="background-color: ${getIndividualScoreColor(card.scores.relevance)}"></div>
+                        <span class="text-[9px] text-gray-600">${card.scores.relevance}</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-full h-2 rounded" style="background-color: ${getIndividualScoreColor(card.scores.evidence)}"></div>
+                        <span class="text-[9px] text-gray-600">${card.scores.evidence}</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-full h-2 rounded" style="background-color: ${getIndividualScoreColor(card.scores.novelty)}"></div>
+                        <span class="text-[9px] text-gray-600">${card.scores.novelty}</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-full h-2 rounded" style="background-color: ${getIndividualScoreColor(card.scores.actionability)}"></div>
+                        <span class="text-[9px] text-gray-600">${card.scores.actionability}</span>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-full h-2 rounded" style="background-color: ${getIndividualScoreColor(card.scores.clarity)}"></div>
+                        <span class="text-[9px] text-gray-600">${card.scores.clarity}</span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-1">
+                    ${card.tags.map(tag => `<span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-1 rounded">#${tag}</span>`).join('')}
+                </div>
+            `;
+            
+            return cardEl;
+        }
+        
+        // Create expanded playground card
+        function createPlaygroundCard(card, position) {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'expanded-card';
+            cardEl.setAttribute('data-card-id', card.id);
+            cardEl.style.left = position.x + 'px';
+            cardEl.style.top = position.y + 'px';
+            
+            let quotesHtml = card.quotes.map(q => 
+                `<div class="bg-gray-50 border-l-4 border-orange-500 p-2 my-2 text-xs italic">
+                    "${q.text}" <span class="text-gray-500">(p. ${q.page})</span>
+                </div>`
+            ).join('');
+            
+            cardEl.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-xs text-gray-500 font-mono">${card.id}</span>
+                    <button class="remove-card text-red-500 hover:text-red-700 font-bold text-xl leading-none">×</button>
+                </div>
+                <h3 class="font-bold text-base mb-3 text-gray-800">${card.title}</h3>
+                <div class="mb-3 text-xs text-gray-700 leading-relaxed max-h-32 overflow-y-auto">
+                    ${card.insight}
+                </div>
+                <div class="mb-3">
+                    <p class="text-xs font-semibold text-gray-600 mb-1">Supporting Quotes:</p>
+                    ${quotesHtml}
+                </div>
+                ${card.keyPhrases ? `<div class="mb-3 text-xs"><strong>Key Phrases:</strong> ${card.keyPhrases}</div>` : ''}
+                <div class="mb-3 flex justify-between text-xs">
+                    <div><strong>Relevance:</strong> <span style="color: ${getIndividualScoreColor(card.scores.relevance)}">${card.scores.relevance}/5</span></div>
+                    <div><strong>Evidence:</strong> <span style="color: ${getIndividualScoreColor(card.scores.evidence)}">${card.scores.evidence}/5</span></div>
+                    <div><strong>Novelty:</strong> <span style="color: ${getIndividualScoreColor(card.scores.novelty)}">${card.scores.novelty}/5</span></div>
+                </div>
+                <div class="mb-3 flex justify-between text-xs">
+                    <div><strong>Actionability:</strong> <span style="color: ${getIndividualScoreColor(card.scores.actionability)}">${card.scores.actionability}/5</span></div>
+                    <div><strong>Clarity:</strong> <span style="color: ${getIndividualScoreColor(card.scores.clarity)}">${card.scores.clarity}/5</span></div>
+                    <div><strong>Total:</strong> <span class="${getScoreColor(card.totalScore)}">${card.totalScore}/100</span></div>
+                </div>
+                <div class="flex flex-wrap gap-1">
+                    ${card.tags.map(tag => `<span class="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">#${tag}</span>`).join('')}
+                </div>
+                ${card.mergeNote ? `<div class="merge-badge mt-2">⚠️ ${card.mergeNote}</div>` : ''}
+            `;
+            
+            // Make draggable
+            makeDraggable(cardEl);
+            
+            // Remove button handler
+            cardEl.querySelector('.remove-card').addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeFromPlayground(card.id);
+            });
+            
+            return cardEl;
+        }
+        
+        // ===== DRAG & DROP LOGIC (IMPROVED - INSTANT FOLLOWING) =====
+        
+        let draggedCard = null;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let isDraggingCard = false;
+        
+        // Make playground cards draggable with instant following
+        function makeDraggable(element) {
+            element.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('remove-card')) return;
+                
+                isDraggingCard = true;
+                draggedCard = element;
+                
+                const rect = element.getBoundingClientRect();
+                const playgroundRect = document.getElementById('playground').getBoundingClientRect();
+                const scale = currentZoom / 100;
+                
+                // Calculate offset from card's top-left to cursor
+                dragOffsetX = (e.clientX - rect.left) / scale;
+                dragOffsetY = (e.clientY - rect.top) / scale;
+                
+                element.style.cursor = 'grabbing';
+                element.style.zIndex = '1000';
+                
+                e.stopPropagation();
+                e.preventDefault();
+            });
+        }
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDraggingCard || !draggedCard) return;
+            
+            const playground = document.getElementById('playground');
+            const playgroundZoomableRect = document.getElementById('playgroundZoomable').getBoundingClientRect();
+            const scale = currentZoom / 100;
+            
+            // Calculate position in playground coordinates (accounting for pan and zoom)
+            let x = ((e.clientX - playgroundZoomableRect.left) / scale) - dragOffsetX;
+            let y = ((e.clientY - playgroundZoomableRect.top) / scale) - dragOffsetY;
+            
+            // Allow cards to be placed anywhere in the 4000x4000 canvas
+            x = Math.max(0, Math.min(x, 4000 - draggedCard.offsetWidth));
+            y = Math.max(0, Math.min(y, 4000 - draggedCard.offsetHeight));
+            
+            draggedCard.style.left = x + 'px';
+            draggedCard.style.top = y + 'px';
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isDraggingCard && draggedCard) {
+                draggedCard.style.cursor = 'move';
+                draggedCard.style.zIndex = '10';
+                isDraggingCard = false;
+                draggedCard = null;
+            }
+        });
+        
+        // Library card drag handlers
+        function setupLibraryDragHandlers() {
+            const library = document.getElementById('cardLibrary');
+            
+            library.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('insight-card')) {
+                    e.target.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', e.target.getAttribute('data-card-id'));
+                }
+            });
+            
+            library.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('insight-card')) {
+                    e.target.classList.remove('dragging');
+                }
+            });
+        }
+        
+        // Playground drop zone
+        function setupPlaygroundDropZone() {
+            const playgroundWrapper = document.getElementById('playgroundWrapper');
+            
+            playgroundWrapper.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+            
+            playgroundWrapper.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const cardId = e.dataTransfer.getData('text/plain');
+                const card = insightCards.find(c => c.id === cardId);
+                
+                if (card && !isCardInPlayground(cardId)) {
+                    const playgroundZoomableRect = document.getElementById('playgroundZoomable').getBoundingClientRect();
+                    const scale = currentZoom / 100;
+                    
+                    const position = {
+                        x: ((e.clientX - playgroundZoomableRect.left) / scale) - 150,
+                        y: ((e.clientY - playgroundZoomableRect.top) / scale) - 50
+                    };
+                    
+                    addToPlayground(card, position);
+                    showToast(`Added ${cardId} to playground`);
+                }
+            });
+        }
+        
+        // ===== PLAYGROUND MANAGEMENT =====
+        
+        function isCardInPlayground(cardId) {
+            return document.querySelector(`#playground [data-card-id="${cardId}"]`) !== null;
+        }
+        
+        function addToPlayground(card, position) {
+            const playground = document.getElementById('playground');
+            const cardEl = createPlaygroundCard(card, position);
+            playground.appendChild(cardEl);
+            updatePlaygroundCount();
+        }
+        
+        function removeFromPlayground(cardId) {
+            const cardEl = document.querySelector(`#playground [data-card-id="${cardId}"]`);
+            if (cardEl) {
+                cardEl.remove();
+                updatePlaygroundCount();
+                showToast(`Removed ${cardId} from playground`);
+            }
+        }
+        
+        function updatePlaygroundCount() {
+            const count = document.querySelectorAll('#playground .expanded-card').length;
+            document.getElementById('playgroundCount').textContent = `${count} cards`;
+        }
+        
+        // ===== INITIALIZE LIBRARY =====
+        
+        function renderLibrary(sortBy = 'total') {
+            const library = document.getElementById('cardLibrary');
+            library.innerHTML = '';
+            
+            let sorted = [...insightCards];
+            
+            // Sort
+            switch(sortBy) {
+                case 'relevance':
+                    sorted.sort((a, b) => b.scores.relevance - a.scores.relevance);
+                    break;
+                case 'novelty':
+                    sorted.sort((a, b) => b.scores.novelty - a.scores.novelty);
+                    break;
+                case 'evidence':
+                    sorted.sort((a, b) => b.scores.evidence - a.scores.evidence);
+                    break;
+                default: // total
+                    sorted.sort((a, b) => b.totalScore - a.totalScore);
+            }
+            
+            sorted.forEach(card => {
+                const cardEl = createLibraryCard(card);
+                library.appendChild(cardEl);
+            });
+            
+            updateLibraryCount();
+        }
+        
+        function updateLibraryCount() {
+            const visible = document.querySelectorAll('#cardLibrary .insight-card:not([style*="display: none"])').length;
+            const total = insightCards.length;
+            document.getElementById('libraryCount').textContent = `${visible} insights`;
+        }
+        
+        // ===== FILTERING =====
+        
+        function applyFilters() {
+            const checkedTags = Array.from(document.querySelectorAll('.tag-filter:checked'))
+                .map(cb => cb.value);
+            
+            const cards = document.querySelectorAll('#cardLibrary .insight-card');
+            
+            if (checkedTags.length === 0) {
+                // Show all if no filters
+                cards.forEach(card => card.style.display = '');
+            } else {
+                cards.forEach(card => {
+                    const cardTags = card.getAttribute('data-tags').split(',');
+                    const hasMatch = checkedTags.some(tag => cardTags.includes(tag));
+                    card.style.display = hasMatch ? '' : 'none';
+                });
+            }
+            
+            updateLibraryCount();
+        }
+        
+        // ===== TABS =====
+        
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const panes = document.querySelectorAll('.tab-pane');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetPane = tab.getAttribute('data-tab');
+                    
+                    // Update active states
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show target pane
+                    panes.forEach(pane => {
+                        if (pane.id === `${targetPane}-pane`) {
+                            pane.classList.remove('hidden');
+                            pane.classList.add('active');
+                        } else {
+                            pane.classList.add('hidden');
+                            pane.classList.remove('active');
+                        }
+                    });
+                });
+            });
+        }
+        
+        // ===== DROPDOWNS =====
+        
+        function setupDropdowns() {
+            // Sort dropdown
+            const sortBtn = document.getElementById('sortBtn');
+            const sortDropdown = document.getElementById('sortDropdown');
+            
+            sortBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sortDropdown.classList.toggle('show');
+                filterDropdown.classList.remove('show');
+            });
+            
+            document.querySelectorAll('.sort-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const sortType = option.getAttribute('data-sort');
+                    const labels = {
+                        'total': 'Total Score',
+                        'relevance': 'Relevance',
+                        'novelty': 'Novelty',
+                        'evidence': 'Evidence Strength'
+                    };
+                    sortBtn.innerHTML = `Sort by: ${labels[sortType]} ↓ <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`;
+                    renderLibrary(sortType);
+                    sortDropdown.classList.remove('show');
+                });
+            });
+            
+            // Filter dropdown
+            const filterBtn = document.getElementById('filterBtn');
+            const filterDropdown = document.getElementById('filterDropdown');
+            
+            filterBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                filterDropdown.classList.toggle('show');
+                sortDropdown.classList.remove('show');
+            });
+            
+            document.querySelectorAll('.tag-filter').forEach(checkbox => {
+                checkbox.addEventListener('change', applyFilters);
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', () => {
+                sortDropdown.classList.remove('show');
+                filterDropdown.classList.remove('show');
+            });
+        }
+        
+        // ===== DESIGN GOAL EDITING =====
+        
+        function setupDesignGoalEditing() {
+            const textarea = document.getElementById('designGoalInput');
+            const charCount = document.getElementById('charCount');
+            
+            textarea.addEventListener('input', () => {
+                charCount.textContent = textarea.value.length;
+                
+                // Simulate recalculation
+                const cards = document.querySelectorAll('#cardLibrary .insight-card');
+                cards.forEach(card => card.classList.add('pulsing'));
+                
+                showToast('Relevance scores recalculating...');
+                
+                setTimeout(() => {
+                    cards.forEach(card => card.classList.remove('pulsing'));
+                }, 2000);
+            });
+        }
+        
+        // ===== TOAST NOTIFICATIONS =====
+        
+        function showToast(message) {
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) existingToast.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+        
+        // ===== INITIALIZE APP =====
+        
+        function init() {
+            console.log('Initializing Yes& tool v1.1...');
+            
+            // Render library
+            renderLibrary('total');
+            
+            // Setup interactions
+            setupLibraryDragHandlers();
+            setupPlaygroundDropZone();
+            setupTabs();
+            setupDropdowns();
+            setupDesignGoalEditing();
+            
+            // Pre-populate playground with 4 cards in center area of 4000x4000 canvas
+            const playgroundCards = [
+                { card: insightCards.find(c => c.id === 'C01'), position: { x: 1800, y: 1800 } },
+                { card: insightCards.find(c => c.id === 'C02'), position: { x: 2250, y: 1800 } },
+                { card: insightCards.find(c => c.id === 'C09'), position: { x: 1800, y: 2150 } },
+                { card: insightCards.find(c => c.id === 'C11'), position: { x: 2250, y: 2150 } }
+            ];
+            
+            playgroundCards.forEach(({ card, position }) => {
+                if (card) addToPlayground(card, position);
+            });
+            
+            console.log('Yes& tool v1.1 initialized successfully!');
+        }
+        
+        // Start the app
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
